@@ -12,3 +12,4 @@ library/
 _*.mjs
 _*.mts
 _*.cjs
+REPO_DUMP.md
