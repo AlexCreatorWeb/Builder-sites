@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Builder — конструктор лендингов</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script>
+      /* Сбой ЗАГРУЗКИ модуля («does not provide an export named 'default'» —
+         пустой трансформ Vite, когда файл читают в момент записи) случается
+         до React: границе в дереве его не поймать. Без этого — белый экран. */
+      window.addEventListener(
+        "error",
+        function (e) {
+          var t = e && e.target;
+          if (t && t !== window && t.tagName === "SCRIPT") {
+            showBootFail("не загрузился модуль: " + (t.src || ""));
+            return;
+          }
+          // SyntaxError «does not provide an export named 'default'» — это НЕ
+          // ошибка тега script и не промис: событие приходит на window с
+          // текстом в e.message; здесь ловим и его
+          var m = (e && e.message) || "";
+          if (m.indexOf("export named") >= 0 || m.indexOf("Cannot use import statement") >= 0)
+            showBootFail(m);
+        },
+        true
+      );
+      window.addEventListener("unhandledrejection", function (e) {
+        var m = e && e.reason && (e.reason.message || String(e.reason));
+        if (m && (m.indexOf("export named") >= 0 || m.indexOf("dynamically imported") >= 0))
+          showBootFail(m);
+      });
+      // страховка от всего остального, что оставило #root пустым
+      window.addEventListener("load", function () {
+        setTimeout(function () {
+          var root = document.getElementById("root");
+          if (root && !root.childElementCount)
+            showBootFail("приложение не отрисовалось (пустой #root)");
+        }, 2500);
+      });
+      function showBootFail(msg) {
+        if (document.querySelector(".boot-fail")) return;
+        var d = document.createElement("div");
+        d.className = "boot-fail";
+        /* минимальный стиль на случай, если не загрузился и CSS: без него
+           панель невидима на белом фоне браузера */
+        d.style.cssText =
+          "margin:12vh auto;max-width:560px;padding:24px;border:1px solid #e0453a;border-radius:16px;background:#131318;color:#f2f3f5;font-family:system-ui,sans-serif";
+        d.innerHTML =
+          "<h2>Витрина не собралась</h2><p></p>" +
+          '<button type="button" class="btn primary">⟳ Перезагрузить</button>';
+        d.querySelector("p").textContent = String(msg).slice(0, 300);
+        d.querySelector("button").onclick = function () {
+          location.reload();
+        };
+        document.body.appendChild(d);
+      }
+      window.showBootFail = showBootFail;
+    </script>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

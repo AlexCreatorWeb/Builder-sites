@@ -1,0 +1,14 @@
+node_modules/
+.env
+projects/
+.cache/
+dist/
+.smoke-*/
+scripts/devshots/
+
+archive/
+logs/
+library/
+_*.mjs
+_*.mts
+_*.cjs
